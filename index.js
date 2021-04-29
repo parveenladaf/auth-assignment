@@ -4,6 +4,7 @@ require("dotenv").config();
 
 app.use(require("body-parser").json());
 
+const jsonwebtoken = require("jsonwebtoken");
 
 app.use(function(req, res, next) {
     if (req.headers && req.headers.authorization && req.headers.authorization.split(' ')[0] === 'JWT') {

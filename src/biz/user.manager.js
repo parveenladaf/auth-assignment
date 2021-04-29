@@ -8,6 +8,7 @@ const Validator = require("jsonschema").Validator,
     bcrypt = require("bcrypt");
 
 const User = require("../models/user.models");
+const { query } = require("express");
 
 class UserManager {
     constructor() {}
@@ -88,6 +89,53 @@ class UserManager {
             return await conn.findOne({
                 email_id: email,
             });
+        } catch (error) {
+            throw error;
+        } finally {
+            // Close mongodb connection
+            await client.close();
+        }
+    }
+
+    async find(query) {
+        const uri = process.env.MONGO_URI;
+        const client = new MongoClient(uri, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+        try {
+            await client.connect();
+            console.log("Connected correctly to server");
+            const dbName = "company_db";
+            const db = client.db(dbName);
+            // Use the collection
+            const conn = db.collection("users");
+            return await conn.find({ query });
+        } catch (error) {
+            throw error;
+        } finally {
+            // Close mongodb connection
+            await client.close();
+        }
+    }
+
+    async update(userData, email) {
+        const uri = process.env.MONGO_URI;
+        const client = new MongoClient(uri, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+        try {
+            await client.connect();
+            console.log("Connected correctly to server");
+            const dbName = "company_db";
+            const db = client.db(dbName);
+            // Use the collection
+            const conn = db.collection("users");
+            if (userData.password) {
+                userData.password = bcrypt.hashSync(userData.password, 10);
+            }
+            await conn.updateOne({ email_id: email }, { $set: userData }, { upsert: true });
         } catch (error) {
             throw error;
         } finally {

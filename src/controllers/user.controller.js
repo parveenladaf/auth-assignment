@@ -4,9 +4,6 @@ const UserManager = require("../biz/user.manager");
 
 const STATUS = require("../constant/status");
 const HEADER = require("../constant/header");
-const User = require("../models/user.models"),
-    jwt = require("jsonwebtoken"),
-    bcrypt = require("bcrypt");
 const MESSAGE = require("../constant/message");
 
 /**
@@ -46,6 +43,40 @@ class UserController {
                 .status(STATUS.OK)
                 .header(HEADER.CONTENT_TYPE, HEADER.JSON)
                 .send(JSON.stringify(result));
+        } catch (err) {
+            res.status(err.status || STATUS.ERROR).send("Internal Server Error");
+        }
+    }
+
+    async update(req, res) {
+        try {
+            if (req.user) {
+                const userManager = new UserManager();
+                await userManager.update(req.body, req.user.email_id);
+                res
+                    .status(STATUS.OK)
+                    .header(HEADER.CONTENT_TYPE, HEADER.JSON)
+                    .send(MESSAGE.USER_UPDATE);
+            } else {
+                return res.status(401).json({ message: "Invalid token" });
+            }
+        } catch (err) {
+            res.status(err.status || STATUS.ERROR).send("Internal Server Error");
+        }
+    }
+
+    async search(req, res) {
+        try {
+            if (req.user) {
+                const userManager = new UserManager();
+                const result = await userManager.find(req.body);
+                res
+                    .status(STATUS.OK)
+                    .header(HEADER.CONTENT_TYPE, HEADER.JSON)
+                    .send(result);
+            } else {
+                return res.status(401).json({ message: "Invalid token" });
+            }
         } catch (err) {
             res.status(err.status || STATUS.ERROR).send("Internal Server Error");
         }
