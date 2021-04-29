@@ -7,9 +7,6 @@ const Validator = require("jsonschema").Validator,
     jwt = require("jsonwebtoken"),
     bcrypt = require("bcrypt");
 
-const User = require("../models/user.models");
-const { query } = require("express");
-
 class UserManager {
     constructor() {}
 
@@ -110,7 +107,7 @@ class UserManager {
             const db = client.db(dbName);
             // Use the collection
             const conn = db.collection("users");
-            return await conn.find({ query });
+            return await conn.find({ first_name: query.first_name });
         } catch (error) {
             throw error;
         } finally {
